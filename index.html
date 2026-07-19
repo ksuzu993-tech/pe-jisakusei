@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>note記事スタジオ v14｜AIと作る記事下書き</title>
+<title>note記事スタジオ v16｜AIと作る記事下書き</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap');
 
@@ -256,7 +256,7 @@
   </header>
 
   <div class="notice">
-    <b>GitHub Pagesやダウンロード後のブラウザでも、下の「AI設定」にご自身のAPIキーを入れればAI生成が動きます。</b>Claude（claude.ai）のプレビュー内で使う場合はキー不要です。noteへの投稿は手動です。AIの下書きは骨組みとして使い、体験と本音を足してから公開するのがおすすめです。【バージョン：<b>v14</b>】
+    <b>GitHub Pagesやダウンロード後のブラウザでも、下の「AI設定」にご自身のAPIキーを入れればAI生成が動きます。</b>Claude（claude.ai）のプレビュー内で使う場合はキー不要です。noteへの投稿は手動です。AIの下書きは骨組みとして使い、体験と本音を足してから公開するのがおすすめです。【バージョン：<b>v16</b>】
   </div>
 
   <!-- AI設定 -->
@@ -266,12 +266,14 @@
       <h2>AIエンジンをつなぐ</h2>
     </div>
     <p class="hint">
-      <b>Claude（claude.ai）内で開いている場合：</b>このまま何も設定せず使えます（使えるのはClaudeのみ。<span style="color:var(--shu);font-weight:700">セキュリティ制限のため、この画面からGemini・ChatGPTには接続できません</span>）。<br>
-      <b>GitHub Pagesやダウンロードして使う場合：</b>お使いのAI（Claude／ChatGPT／Gemini）のAPIキーを入力してください。キーはこのページのメモリにだけ置かれ、どこにも保存・送信されません（通信は各AI提供元へ直接行われます）。ページを閉じると消えるので、毎回入力してください。
+      <b>標準の「無料AI」はAPIキー不要です。</b>初回の生成時に、無料のPuterアカウントへのログイン画面が一度だけ表示されます（メール登録のみ・クレジットカード不要）。ログインすれば、そのままページ内でAI生成が使えます。ポップアップがブロックされた場合は許可してください。<br>
+      <b>自分のAPIキーを使いたい場合：</b>使うAIを選んでキーを入力してください。キーはこのページのメモリにだけ置かれ、どこにも保存・送信されません（通信は各AI提供元へ直接行われます）。<br>
+      ※Claude（claude.ai）のプレビュー内で開いている場合は、「無料AI」を選んでいてもClaudeが代わりに応答します（外部接続が制限されているため）。
     </p>
 
     <label class="fl" for="provSel">使うAI</label>
     <select id="provSel">
+      <option value="puter">無料AI（キー不要・おすすめ）</option>
       <option value="auto">自動（Claude内ならキー不要／キーがあれば形式から判別）</option>
       <option value="claude">Claude API（Anthropic）</option>
       <option value="openai">ChatGPT API（OpenAI）</option>
@@ -291,7 +293,9 @@
     <details class="keyguide">
       <summary>APIキーの取得方法と注意点（クリックで開く）</summary>
       <div class="kg-body">
-        <p><span class="warn">■ 最初に知っておくこと：APIキーは、普段のチャット画面の中にはありません</span><br>
+        <p><b>■ 標準の「無料AI」を使う場合：APIキーは不要です</b><br>
+        初回の生成時に、Puter（ピューター）という無料サービスへのログイン画面が一度だけ開きます。メールアドレスで無料登録（またはログイン）すれば、そのまま使えます。クレジットカードの登録は不要で、無料枠の範囲でAI生成が利用できます。ブラウザがポップアップをブロックした場合は、アドレスバー付近の表示から「許可」を選んでください。以下のAPIキーの説明は、<b>自分のAIアカウントを使いたい方向けのオプション</b>です。</p>
+        <p><span class="warn">■ APIキーを使う場合に知っておくこと：キーは、普段のチャット画面の中にはありません</span><br>
         Claude・ChatGPT・Geminiいずれも、いつも会話しているアプリの設定メニューをいくら探してもAPIキーの項目は見つかりません。APIキーは<b>開発者向けの「別のWebサイト」</b>で発行します。ブラウザで新しいタブを開き、下記のアドレスを直接入力して移動してください。</p>
         <p><b>■ Gemini（Google）― まず無料で試したい方に</b><br>
         <b>aistudio.google.com</b> を開きます（チャット版の gemini.google.com とは別サイトです）→ いつものGoogleアカウントでログイン → 「APIキーを取得（Get API key）」→ 発行されたキー（AIza…で始まる文字列）をコピーして、上の入力欄に貼り付けます。カード登録は不要で、無料枠の範囲なら料金はかかりません。最初の一歩におすすめです。</p>
@@ -523,7 +527,7 @@
   }
 
   async function callGeminiModel(prompt, key, m, wantJson){
-    var genCfg = { maxOutputTokens: 8192 };
+    var genCfg = {};
     if(wantJson) genCfg.responseMimeType = "application/json";
     var res = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(m)
@@ -589,6 +593,18 @@
 
   async function callProvider(prompt, wantJson){
     var s = aiSettings();
+    if(s.prov === "puter"){
+      try{
+        return await callPuter(prompt, s.model);
+      }catch(e){
+        var em = String((e && e.message) || "");
+        // Claudeプレビュー内など、外部スクリプトが読み込めない環境ではClaudeで代替
+        if(/puter-load|puter-unavailable/.test(em) && /claude/i.test(location.hostname)){
+          return callAnthropic(prompt, "", "");
+        }
+        throw e;
+      }
+    }
     if(s.prov === "gemini"){
       if(!s.key) throw new Error("nokey");
       return callGemini(prompt, s.key, s.model, wantJson);
@@ -650,6 +666,38 @@
       }catch(_e){}
     }
     throw new Error("format");
+  }
+
+  // ---------- 無料AI（Puter.js／キー不要） ----------
+  var puterLoading = null;
+  function ensurePuter(){
+    if(window.puter) return Promise.resolve();
+    if(puterLoading) return puterLoading;
+    puterLoading = new Promise(function(resolve, reject){
+      var s = document.createElement("script");
+      var timer = setTimeout(function(){ reject(new Error("puter-load-timeout")); }, 12000);
+      s.src = "https://js.puter.com/v2/";
+      s.onload = function(){ clearTimeout(timer); window.puter ? resolve() : reject(new Error("puter-unavailable")); };
+      s.onerror = function(){ clearTimeout(timer); reject(new Error("puter-load-blocked")); };
+      document.head.appendChild(s);
+    });
+    return puterLoading;
+  }
+  function puterText(r){
+    if(!r) return "";
+    if(typeof r === "string") return r;
+    if(typeof r.text === "string" && r.text) return r.text;
+    var c = r.message && r.message.content;
+    if(typeof c === "string") return c;
+    if(Array.isArray(c)) return c.map(function(b){ return (b && b.text) || ""; }).join("");
+    return "";
+  }
+  async function callPuter(prompt, model){
+    await ensurePuter();
+    var r = await window.puter.ai.chat(prompt, { model: model || "gpt-5.4-nano" });
+    var text = puterText(r).trim();
+    if(!text) throw new Error("empty");
+    return text;
   }
 
   // ---------- 自動リトライ（速度制限・一時的な混雑への対策） ----------
